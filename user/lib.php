@@ -48,12 +48,16 @@ function user_create_user($user, $updatepassword = true, $triggerevent = true) {
     }
 
     // Check username.
+    if (trim($user->username) === '') {
+        throw new moodle_exception('invalidusernameblank');
+    }
+
     if ($user->username !== core_text::strtolower($user->username)) {
         throw new moodle_exception('usernamelowercase');
-    } else {
-        if ($user->username !== core_user::clean_field($user->username, 'username')) {
-            throw new moodle_exception('invalidusername');
-        }
+    }
+
+    if ($user->username !== core_user::clean_field($user->username, 'username')) {
+        throw new moodle_exception('invalidusername');
     }
 
     // Save the password in a temp value for later.
@@ -122,8 +126,9 @@ function user_create_user($user, $updatepassword = true, $triggerevent = true) {
         \core\event\user_created::create_from_userid($newuserid)->trigger();
     }
 
-    // Purge the associated caches.
-    cache_helper::purge_by_event('createduser');
+    // Purge the associated caches for the current user only.
+    $presignupcache = \cache::make('core', 'presignup');
+    $presignupcache->purge_current_user();
 
     return $newuserid;
 }
@@ -1241,7 +1246,7 @@ function user_get_tagged_users($tag, $exclusivemode = false, $fromctx = 0, $ctx 
  * Returns the SQL used by the participants table.
  *
  * @param int $courseid The course id
- * @param int $groupid The groupid, 0 means all groups
+ * @param int $groupid The groupid, 0 means all groups and USERSWITHOUTGROUP no group
  * @param int $accesssince The time since last access, 0 means any time
  * @param int $roleid The role id, 0 means all roles
  * @param int $enrolid The enrolment id, 0 means all enrolment methods will be returned.
@@ -1412,7 +1417,7 @@ function user_get_participants_sql($courseid, $groupid = 0, $accesssince = 0, $r
  * Returns the total number of participants for a given course.
  *
  * @param int $courseid The course id
- * @param int $groupid The groupid, 0 means all groups
+ * @param int $groupid The groupid, 0 means all groups and USERSWITHOUTGROUP no group
  * @param int $accesssince The time since last access, 0 means any time
  * @param int $roleid The role id, 0 means all roles
  * @param int $enrolid The applied filter for the user enrolment ID.
@@ -1436,7 +1441,7 @@ function user_get_total_participants($courseid, $groupid = 0, $accesssince = 0, 
  * Returns the participants for a given course.
  *
  * @param int $courseid The course id
- * @param int $groupid The group id
+ * @param int $groupid The groupid, 0 means all groups and USERSWITHOUTGROUP no group
  * @param int $accesssince The time since last access
  * @param int $roleid The role id
  * @param int $enrolid The applied filter for the user enrolment ID.
@@ -1474,7 +1479,7 @@ function user_get_course_lastaccess_sql($accesssince = null, $tableprefix = 'ul'
     if ($accesssince == -1) { // Never.
         return $tableprefix . '.timeaccess = 0';
     } else {
-        return $tableprefix . '.timeaccess != 0 AND ul.timeaccess < ' . $accesssince;
+        return $tableprefix . '.timeaccess != 0 AND ' . $tableprefix . '.timeaccess < ' . $accesssince;
     }
 }
 
@@ -1493,7 +1498,7 @@ function user_get_user_lastaccess_sql($accesssince = null, $tableprefix = 'u') {
     if ($accesssince == -1) { // Never.
         return $tableprefix . '.lastaccess = 0';
     } else {
-        return $tableprefix . '.lastaccess != 0 AND u.lastaccess < ' . $accesssince;
+        return $tableprefix . '.lastaccess != 0 AND ' . $tableprefix . '.lastaccess < ' . $accesssince;
     }
 }
 

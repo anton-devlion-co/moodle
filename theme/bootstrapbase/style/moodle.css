@@ -2678,6 +2678,7 @@ form.popupform div {
 }
 .no-overflow > .generaltable {
   margin-bottom: 0;
+  min-height: 10em;
 }
 .accesshide {
   position: absolute;
@@ -16029,6 +16030,10 @@ body {
 .editing .block .header .commands img.actionmenu {
   width: auto;
 }
+.editing .block .header .commands .toggle-display[role="menuitem"] img.icon {
+  width: 22px;
+  vertical-align: middle;
+}
 .jsenabled .block.hidden .content {
   display: none;
 }
@@ -16598,6 +16603,10 @@ form {
 }
 .mform .fitem .fitemtitle div {
   display: inline;
+}
+.mform .fitem .fitemtitle .mediaplugin,
+.mform .fitem .fitemtitle .mediaplugin div {
+  display: block;
 }
 #adminsettings .error,
 .loginpanel .error,
@@ -22078,4 +22087,13 @@ ul.indented-list {
 }
 .w-100 {
   width: 100%;
+}
+.w-75 {
+  width: 75%;
+}
+.w-50 {
+  width: 50%;
+}
+.w-25 {
+  width: 25%;
 }

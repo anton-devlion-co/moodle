@@ -3496,19 +3496,21 @@ function get_users_by_capability(context $context, $capability, $fields = '', $s
     if ($groups) {
         $groups = (array)$groups;
         list($grouptest, $grpparams) = $DB->get_in_or_equal($groups, SQL_PARAMS_NAMED, 'grp');
-        $grouptest = "u.id IN (SELECT userid FROM {groups_members} gm WHERE gm.groupid $grouptest)";
+        $joins[] = "LEFT OUTER JOIN (SELECT DISTINCT userid
+                                       FROM {groups_members}
+                                      WHERE groupid $grouptest
+                                    ) gm ON gm.userid = u.id";
+
         $params = array_merge($params, $grpparams);
 
+        $grouptest = 'gm.userid IS NOT NULL';
         if ($useviewallgroups) {
             $viewallgroupsusers = get_users_by_capability($context, 'moodle/site:accessallgroups', 'u.id, u.id', '', '', '', '', $exceptions);
             if (!empty($viewallgroupsusers)) {
-                $wherecond[] =  "($grouptest OR u.id IN (" . implode(',', array_keys($viewallgroupsusers)) . '))';
-            } else {
-                $wherecond[] =  "($grouptest)";
+                $grouptest .= ' OR u.id IN (' . implode(',', array_keys($viewallgroupsusers)) . ')';
             }
-        } else {
-            $wherecond[] =  "($grouptest)";
         }
+        $wherecond[] = "($grouptest)";
     }
 
     // User exceptions
@@ -5334,6 +5336,9 @@ abstract class context extends stdClass implements IteratorAggregate {
             return array();
         }
 
+        // Preload the contexts to reduce DB calls.
+        context_helper::preload_contexts_by_id($contextids);
+
         $result = array();
         foreach ($contextids as $contextid) {
             $parent = context::instance_by_id($contextid, MUST_EXIST);
@@ -5709,6 +5714,34 @@ class context_helper extends context {
      public static function preload_from_record(stdClass $rec) {
          context::preload_from_record($rec);
      }
+
+    /**
+     * Preload a set of contexts using their contextid.
+     *
+     * @param   array $contextids
+     */
+    public static function preload_contexts_by_id(array $contextids) {
+        global $DB;
+
+        // Determine which contexts are not already cached.
+        $tofetch = [];
+        foreach ($contextids as $contextid) {
+            if (!self::cache_get_by_id($contextid)) {
+                $tofetch[] = $contextid;
+            }
+        }
+
+        if (count($tofetch) > 1) {
+            // There are at least two to fetch.
+            // There is no point only fetching a single context as this would be no more efficient than calling the existing code.
+            list($insql, $inparams) = $DB->get_in_or_equal($tofetch, SQL_PARAMS_NAMED);
+            $ctxs = $DB->get_records_select('context', "id {$insql}", $inparams, '',
+                    \context_helper::get_preload_record_columns_sql('{context}'));
+            foreach ($ctxs as $ctx) {
+                self::preload_from_record($ctx);
+            }
+        }
+    }
 
     /**
      * Preload all contexts instances from course.
@@ -6778,12 +6811,39 @@ class context_module extends context {
         if (!empty($extra)) {
             $extra = "OR name $extra";
         }
+
+        // Fetch the list of modules, and remove this one.
+        $components = \core_component::get_component_list();
+        $componentnames = $components['mod'];
+        unset($componentnames["mod_{$module->name}"]);
+        $componentnames = array_keys($componentnames);
+
+        // Exclude all other modules.
+        list($notcompsql, $notcompparams) = $DB->get_in_or_equal($componentnames, SQL_PARAMS_NAMED, 'notcomp', false);
+        $params = array_merge($params, $notcompparams);
+
+
+        // Exclude other component submodules.
+        $i = 0;
+        $ignorecomponents = [];
+        foreach ($componentnames as $mod) {
+            if ($subplugins = \core_component::get_subplugins($mod)) {
+                foreach (array_keys($subplugins) as $subplugintype) {
+                    $paramname = "notlike{$i}";
+                    $ignorecomponents[] = $DB->sql_like('component', ":{$paramname}", true, true, true);
+                    $params[$paramname] = "{$subplugintype}_%";
+                    $i++;
+                }
+            }
+        }
+        $notlikesql = "(" . implode(' AND ', $ignorecomponents) . ")";
+
         $sql = "SELECT *
                   FROM {capabilities}
                  WHERE (contextlevel = ".CONTEXT_MODULE."
-                       AND (component = :component OR component = 'moodle'))
+                   AND component {$notcompsql}
+                   AND {$notlikesql})
                        $extra";
-        $params['component'] = "mod_$module->name";
 
         return $DB->get_records_sql($sql.' '.$sort, $params);
     }
