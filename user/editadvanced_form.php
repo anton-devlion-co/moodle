@@ -74,6 +74,8 @@ class user_editadvanced_form extends moodleform {
         $authoptions = array($enabled => array(), $disabled => array());
         $cannotchangepass = array();
         $cannotchangeusername = array();
+        $hiddenusernameauthmethods = array('ldap' , 'db' , 'oauth2');
+        $requiredusername = 1;
         foreach ($auths as $auth => $unused) {
             $authinst = get_auth_plugin($auth);
 
@@ -91,6 +93,9 @@ class user_editadvanced_form extends moodleform {
                 }
             }
             if (is_enabled_auth($auth)) {
+                if (in_array($auth, $hiddenusernameauthmethods)) {
+                    $requiredusername = 0;
+                }
                 $authoptions[$enabled][$auth] = get_string('pluginname', "auth_{$auth}");
             } else {
                 $authoptions[$disabled][$auth] = get_string('pluginname', "auth_{$auth}");
@@ -99,7 +104,9 @@ class user_editadvanced_form extends moodleform {
 
         $purpose = user_edit_map_field_purpose($userid, 'username');
         $mform->addElement('text', 'username', get_string('username'), 'size="20"' . $purpose);
-        $mform->addRule('username', get_string('required'), 'required', null, 'client');
+        if ($requiredusername) {
+            $mform->addRule('username', get_string('required'), 'required', null, 'client');
+        }
         $mform->addHelpButton('username', 'username', 'auth');
         $mform->setType('username', PARAM_RAW);
 
