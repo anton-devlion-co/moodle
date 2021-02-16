@@ -1,0 +1,46 @@
+.edit-translation{
+    border: 1px solid #ddd;
+    padding: 3px;
+    display: inline-block;
+    position: relative;
+    top: -10px;
+    cursor: pointer;
+    font-size: 12px;
+    color: #000;
+    font-weight: bold;
+    background-color: rgba(255,255,150, 0.8)
+}
+.translation-tool-editable {
+    padding: 4px 1px;
+    background: #efe;
+    outline: none;
+}
+.translation-tool-noneditable {
+    padding: 4px 1px;
+    background: #ebebeb;
+    outline: none;
+}
+.addedtrtool {
+    background-color: rgba(255,255,150, 0.2)
+}
+.popover-translation-block .popover-footer {
+    margin: 0;
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 18px;
+    background-color: #F7F7F7;
+    border-bottom: 1px solid #EBEBEB;
+    border-radius: 5px 5px 0 0;
+}
+.popover-translation-block .close {
+    margin-right: 5px;
+    margin-top: 6px;
+}
+.popover-translation-string {
+    padding: 5px;
+    border: 1px solid #ebebeb;
+    min-width: 250px;
+    min-height: 51px;
+    font-size: 16px;
+}

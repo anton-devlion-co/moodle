@@ -22,3 +22,11 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
+
+function tool_customlang_render_navbar_output() {
+    global $PAGE;
+    if (is_siteadmin()) {
+        $PAGE->requires->js_call_amd('tool_customlang/translate-tool', 'init', array());
+    }
+    return  '';
+}
