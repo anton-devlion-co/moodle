@@ -415,6 +415,10 @@ class mod_quiz_external extends external_api {
 
         $attempts = quiz_get_user_attempts($quiz->id, $user->id, $params['status'], $params['includepreviews']);
 
+        foreach ($attempts as $key => $attempt){
+            $attempts[$key]->sumgrades=0;
+        }
+
         $result = array();
         $result['attempts'] = $attempts;
         $result['warnings'] = $warnings;
