@@ -7294,12 +7294,16 @@ function get_string($identifier, $component = '', $a = null, $lazyload = false) 
  *
  * @param array $array An array of strings
  * @param string $component The language module that these strings can be found in.
+ * @param string|object|array $a An object, string or number that can be used
+ *      within translation strings
+ * @param bool $lazyload If set to true a string object is returned instead of
+ *      the string itself. The string then isn't calculated until it is first used.
  * @return stdClass translated strings.
  */
-function get_strings($array, $component = '') {
+function get_strings($array, $component = '', $a = null, $lazyload = false) {
     $string = new stdClass;
     foreach ($array as $item) {
-        $string->$item = get_string($item, $component);
+        $string->$item = get_string($item, $component, $a, $lazyload);
     }
     return $string;
 }
