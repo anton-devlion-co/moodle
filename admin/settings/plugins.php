@@ -104,6 +104,8 @@ if ($hassiteconfig) {
                                             new lang_string('alternatelogin', 'auth', htmlspecialchars(get_login_url())), ''));
     $temp->add(new admin_setting_configtext('forgottenpasswordurl', new lang_string('forgottenpasswordurl', 'auth'),
                                             new lang_string('forgottenpassword', 'auth'), '', PARAM_URL));
+    $temp->add(new admin_setting_configselect('showforgottenpasswordurl', new lang_string('showforgottenpasswordurl', 'auth'),
+                                              new lang_string('showforgottenpasswordurl_desc', 'auth'), '1', array('0'=>new lang_string('hide'), '1'=>new lang_string('show'))));
     $temp->add(new admin_setting_confightmleditor('auth_instructions', new lang_string('instructions', 'auth'),
                                                 new lang_string('authinstructions', 'auth'), ''));
     $setting = new admin_setting_configtext('allowemailaddresses', new lang_string('allowemailaddresses', 'admin'),

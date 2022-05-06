@@ -58,6 +58,8 @@ class login implements renderable, templatable {
     public $error;
     /** @var moodle_url Forgot password URL. */
     public $forgotpasswordurl;
+    /** @var moodle_url Show the 'Forgot password URL'. */
+    public $showforgottenpasswordurl;
     /** @var array Additional identify providers, contains the keys 'url', 'name' and 'icon'. */
     public $identityproviders;
     /** @var string Login instructions, if any. */
@@ -100,6 +102,7 @@ class login implements renderable, templatable {
         $this->autofocusform = !empty($CFG->loginpageautofocus);
 
         $this->forgotpasswordurl = new moodle_url('/login/forgot_password.php');
+        $this->showforgottenpasswordurl = $CFG->showforgottenpasswordurl;
         $this->loginurl = new moodle_url('/login/index.php');
         $this->signupurl = new moodle_url('/login/signup.php');
 
@@ -141,6 +144,7 @@ class login implements renderable, templatable {
         $data->cookieshelpicon = $this->cookieshelpicon->export_for_template($output);
         $data->error = $this->error;
         $data->forgotpasswordurl = $this->forgotpasswordurl->out(false);
+        $data->showforgottenpasswordurl = $this->showforgottenpasswordurl;
         $data->hasidentityproviders = !empty($this->identityproviders);
         $data->hasinstructions = !empty($this->instructions) || $this->cansignup;
         $data->identityproviders = $identityproviders;

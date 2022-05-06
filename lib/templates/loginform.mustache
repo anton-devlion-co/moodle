@@ -27,6 +27,7 @@
     * cookieshelpicon - cookies help icon details
     * error - Any errors in the form?,
     * forgotpasswordurl - Forgot password url,
+    * showforgottenpasswordurl - Show 'Forgot password url'?,
     * hasidentityproviders - Flag, set to true to hide identity providers,
     * hasinstructions - Flag, set to true to show instructions,
     * identityproviders - List of identiy providers,
@@ -78,6 +79,7 @@
         },
         "error": "",
         "forgotpasswordurl": "http://localhost/stable_master/login/forgot_password.php",
+        "showforgottenpasswordurl": true,
         "hasidentityproviders": false,
         "hasinstructions": true,
         "identityproviders": [],
@@ -163,9 +165,11 @@
                 </div>
 
                 <div class="col-md-5">
-                    <div class="forgetpass mt-3">
-                        <p><a href="{{forgotpasswordurl}}">{{#str}}forgotten{{/str}}</a></p>
-                    </div>
+                    {{#showforgottenpasswordurl}}
+                        <div class="forgetpass mt-3">
+                            <p><a href="{{forgotpasswordurl}}">{{#str}}forgotten{{/str}}</a></p>
+                        </div>
+                    {{/showforgottenpasswordurl}}
 
                     <div class="mt-3">
                         {{#str}} cookiesenabled {{/str}}

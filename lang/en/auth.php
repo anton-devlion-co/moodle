@@ -98,6 +98,8 @@ $string['forcechangepasswordfirst_help'] = 'Force users to change password on th
 $string['forcechangepassword_help'] = 'Force users to change password on their next login to Moodle.';
 $string['forgottenpassword'] = 'If you enter a URL here, it will be used as the lost password recovery page for this site. This is intended for sites where passwords are handled entirely outside of Moodle. Leave this blank to use the default password recovery.';
 $string['forgottenpasswordurl'] = 'Forgotten password URL';
+$string['showforgottenpasswordurl'] = 'Show the \'Forgotten password URL\' link';
+$string['showforgottenpasswordurl_desc'] = 'You can hide or show the \'Forgotten password URL\' on the login page.';
 $string['getrecaptchaapi'] = 'To use reCAPTCHA you must get an API key from <a href=\'https://www.google.com/recaptcha/admin\'>https://www.google.com/recaptcha/admin</a>';
 $string['guestloginbutton'] = 'Guest login button';
 $string['changepassword'] = 'Change password URL';
